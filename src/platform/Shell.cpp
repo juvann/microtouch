@@ -61,13 +61,12 @@ public:
 
 		//	Will fail if no card inserted
 		//	TODO: Polling for insterion?
-		MMC_Init();
-		FAT_Init(_buffer,MMC_ReadSector);
 
 		_appResult = 0;
 		_proc = 0;
 		_appIndex = 0;
 		_launch[0] = 0;
+		Hardware.SetLed(1);
 	}
 
 	void Launch(const char* app)

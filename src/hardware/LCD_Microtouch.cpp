@@ -31,25 +31,34 @@ void Blit(uint16_t count, byte a, byte b);
 
 //#define LCD_SSD1297
 //#define LCD_HX8347
+//#define LCD_ILI9325
+#define LCD_SSD1289
 
 #ifdef LCD_SSD1297
 #include "LCD_SSD1297.h"    // Solomon Systech SSD1297 (i.e. SMPK8858)
-#else
+#endif
+
 #ifdef LCD_HX8347
 #include "LCD_HX8347.h"
-#else
-#include "LCD_ILI9325.h"    // Default is ILITEK LCD ILI9325      (i.e. SMPK8858B)
 #endif
+
+#ifdef LCD_SSD1289
+#include "LCD_SSD1289.h"
+#endif
+
+#ifdef LCD_ILI9325
+#include "LCD_ILI9325.h"    // Default is ILITEK LCD ILI9325      (i.e. SMPK8858B)
 #endif
 
 void WriteLcdRegAddress(uint16_t addr)
 {
     DATAOUT;
     DATALPORT = (uint8_t)addr; 
-    DATAHPORT = (uint8_t)(addr >> 8); // always zero
-    CS0;  // Select chip
+    DATAHPORT = 0; // (uint8_t)(addr >> 8); // always zero
     RS0;  // A0 address
     WR0;
+    CS0;  // Select chip
+    CS1;  // Select chip
     WR1;
     RS1;  // Written address
 }
@@ -60,8 +69,9 @@ void WriteLcdReg(uint16_t addr, uint16_t data)
     DATALPORT = (uint8_t)data;
     DATAHPORT = (uint8_t)(data >> 8);
     WR0;
-    WR1;
+    CS0;
     CS1;
+    WR1;
     DATAIN;  // Release Data bus
 }
             
@@ -170,48 +180,22 @@ void LCD_::BlitIndexed(const byte* d, const byte* palette, u32 count32)
     }
 }
 
-#if 0
-void LCD::PixelsIndexed2(int count, const byte* d, const byte* palette)
-{
-    byte w1 = CONTROLPORT;
-    byte w0 = w1 & ~(1 << WR);
-
-    // Looks fussy but it attempts to be fast
-    while (count)
-    {
-        byte c = 255;
-        if (count < c)
-            c = count;
-        byte p = pgm_read_byte(&d[0]);
-        byte i = 0;
-        do
-        {
-            const byte* b = palette + p*2;
-            DATAHPORT = pgm_read_byte(&b[0]);
-            DATALPORT = pgm_read_byte(&b[1]);
-            byte n;
-            do
-            {
-                CONTROLPORT = w0;
-                CONTROLPORT = w1;
-                n = pgm_read_byte(&d[++i]);
-            } while (p == n && i < c);
-            p = n;
-        } while (i < c);
-        count -= c;
-        d += c;
-    }
-}
-#endif
-
 void LCD_::Fill(int color, u32 count32)
 {
-	u8 a = color >> 8;
-	u8 b = color;
+    u8 a = color >> 8;
+    u8 b = color;
     DATAOUT;
     DATAHPORT = a;
     DATALPORT = b;
+
+    do {
+        WR0;
+        CS0;
+        CS1;
+        WR1;
+    } while (--count32);
     
+/*
     byte slow = count32 & 0x07;
     if (slow)
     {
@@ -247,4 +231,5 @@ void LCD_::Fill(int color, u32 count32)
             CONTROLPORT = w1;
         } while (--count);
     }
+*/
 }

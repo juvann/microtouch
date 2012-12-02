@@ -100,8 +100,8 @@
 #define RESET0 cbi(PORTF,1)
 #define RESET1 sbi(PORTF,1)
 
-#define LED0 cbi(PORTC,7)       // IR on his hardware
-#define LED1 sbi(PORTC,7)
+#define LED0 cbi(PORTE,6)       // IR on his hardware
+#define LED1 sbi(PORTE,6)
 
 #define BACKLIGHT0 cbi(PORTC,6)
 #define BACKLIGHT1 sbi(PORTC,6)
@@ -125,7 +125,7 @@
 // set MISO as input
 #define CPU_PRESCALE(n)	(CLKPR = 0x80, CLKPR = (n))
 #define DISABLE_JTAG()  MCUCR = (1 << JTD) | (1 << IVCE) | (0 << PUD); MCUCR = (1 << JTD) | (0 << IVSEL) | (0 << IVCE) | (0 << PUD);
-#define BOARD_INIT() PORTE = (1<<2) | (1 << 6); DDRE = (1<<2) | (1 << 6); PORTF = 0xFF; DDRF = 0xFF; PORTC = 0xFF; DDRC = 0xFF; CPU_PRESCALE(0); DISABLE_JTAG();
+#define BOARD_INIT() PORTE = (1<<2)/* | (1 << 6)*/; DDRE = (1<<2) | (1 << 6); PORTF = 0xFF; DDRF = 0xFF; PORTC = 0xFF; DDRC = 0xFF; CPU_PRESCALE(0); DISABLE_JTAG();
 
 #endif
 

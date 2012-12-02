@@ -201,36 +201,19 @@ void Hardware_::PowerOff()
 #ifdef BOARD2
 void WriteAcc(u8 r, u8 v)
 {
-    SPI_ReceiveByte(0x80 | (r << 1));
-    SPI_ReceiveByte(v);
 }
 
 u8 ReadAcc(u8 r)
 {
-    SPI_ReceiveByte(r << 1);
-    return SPI_ReceiveByte(0);
+    return 0;
 }
 
 void Accelerometer_Init()
 {
-	SPI_Enable();
-    SPCR = 0x50;
-    AACCS_SS_LOW();
-	WriteAcc(0x0D,0x80);    // Disable I2C
-	WriteAcc(0x16,0x05);    // Init 2G
-    AACCS_SS_HIGH();
-    SPI_Disable();
 }
 
 void Hardware_::GetAccelerometer(signed char* xyz)
 {
-    SPI_Enable();
-    SPCR = 0x50;
-    AACCS_SS_LOW();
-    for (u8 i = 0; i < 3; i++)
-        xyz[i] = ReadAcc(i+6);
-    AACCS_SS_HIGH();
-    SPI_Disable();
 }
 #endif
 
@@ -608,10 +591,9 @@ void Hardware_::Init()
 
 	Backlight_Init();
 	Timer_Init();
-	Accelerometer_Init();
 	ADC_Init();
 	USBInit();
-	Touch_Init();
+	//Touch_Init();
 	sei();
 
 	// Attach stdout to usb serial
